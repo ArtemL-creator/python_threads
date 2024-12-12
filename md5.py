@@ -1,40 +1,88 @@
 import threading
+import hashlib
 import time
 
-# N = 10_000_000
-N = 80
-T = 8
-my_lock = threading.Lock()
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+# alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+N = len(alphabet)
+input_pass = "Su5"
+L = len(input_pass)
+T = 4
+
+stop_event = threading.Event()
+found_password = None
+lock = threading.Lock()
 
 
-def func(index):
-    pass
-    for i in range(index, N, T):
-        with my_lock:
-            print(index, i)
+def get_md5_of_string(input_string):
+    return hashlib.md5(input_string.encode()).hexdigest()
 
 
-    # print(f'Hi, from thread {index}')
+def start_threads(in_md5_pass):
+    threads_list = []
+
+    for i in range(T):
+        thread = threading.Thread(target=brute_force_passwords_with_threads, args=(i, in_md5_pass))
+        threads_list.append(thread)
+        thread.start()
+
+    for thread in threads_list:
+        thread.join()
 
 
-# def print_hi(name):
-#     # Use a breakpoint in the code line below to debug your script.
-#     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def brute_force_passwords_with_threads(param, in_md5_pass):
+    global found_password
+    num = param
+    for i in range(num, N ** L, T):
+        if stop_event.is_set():
+            return
+        k = i
+        cur_pass = ""
+        for j in range(L):
+            cur_pass = alphabet[k % N] + cur_pass
+            k //= N
+        cur_md5 = get_md5_of_string(cur_pass)
+        if in_md5_pass == cur_md5:
+            with lock:
+                if found_password is None:
+                    found_password = cur_pass
+            stop_event.set()
+            return
+        print(f'thr {num}, cur_pass {cur_pass}')
+
+
+def brute_force_passwords_without_threads(in_md5_pass):
+    for i in range(N ** L):
+        k = i
+        cur_pass = ""
+        for j in range(L):
+            cur_pass = alphabet[k % N] + cur_pass
+            k //= N
+        cur_md5 = get_md5_of_string(cur_pass)
+        if in_md5_pass == cur_md5:
+            print(cur_pass)
+            return cur_pass
+        print(f'cur_pass {cur_pass}')
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # print_hi('PyCharm')
-    threads_list = []
 
-    for i in range(10):
-        thread = threading.Thread(target=func, args=(i,))
-        threads_list.append(thread)
-        thread.start()
+    md5_pass = get_md5_of_string(input_pass)
+    #
+    start_time_0 = time.perf_counter()
+    # brute_force_passwords_without_threads(md5_pass)
+    end_time_0 = time.perf_counter()
 
-    for i in range(10):
-        threads_list[i].join()
+    start_time = time.perf_counter()
+    start_threads(md5_pass)
+    end_time = time.perf_counter()
 
-    print(f'Hi, from main')
+    print(f'Found password is {found_password}')
+
+    elapsed_time_0 = end_time_0 - start_time_0
+    elapsed_time = end_time - start_time
+    print(f'Time taken: {elapsed_time_0:.4f} seconds')
+    print(f'Time taken: {elapsed_time:.4f} seconds')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
