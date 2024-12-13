@@ -8,6 +8,7 @@ alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 N = len(alphabet)
 input_pass = "Su5S"
 L = len(input_pass)
+
 T = os.cpu_count() or 1  # Выставляем количество потоков в зависимости от железа
 
 stop_event = threading.Event()

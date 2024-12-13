@@ -6,6 +6,7 @@ import time
 
 random.seed()
 N = 100000000
+
 T = os.cpu_count() or 1
 
 count_lock = threading.Lock()
