@@ -71,7 +71,7 @@ if __name__ == '__main__':
     md5_pass = get_md5_of_string(input_pass)
     #
     start_time_0 = time.perf_counter()
-    print(brute_force_passwords_without_threads(md5_pass))
+    #print(brute_force_passwords_without_threads(md5_pass))
     end_time_0 = time.perf_counter()
 
     start_time = time.perf_counter()
