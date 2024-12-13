@@ -1,3 +1,4 @@
+import os
 import threading
 import hashlib
 import time
@@ -5,9 +6,9 @@ import time
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 # alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
 N = len(alphabet)
-input_pass = "Su5"
+input_pass = "Su5S"
 L = len(input_pass)
-T = 4
+T = os.cpu_count() or 1  # Выставляем количество потоков в зависимости от железа
 
 stop_event = threading.Event()
 found_password = None
@@ -60,18 +61,16 @@ def brute_force_passwords_without_threads(in_md5_pass):
             k //= N
         cur_md5 = get_md5_of_string(cur_pass)
         if in_md5_pass == cur_md5:
-            print(cur_pass)
             return cur_pass
         print(f'cur_pass {cur_pass}')
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
     md5_pass = get_md5_of_string(input_pass)
     #
     start_time_0 = time.perf_counter()
-    # brute_force_passwords_without_threads(md5_pass)
+    print(brute_force_passwords_without_threads(md5_pass))
     end_time_0 = time.perf_counter()
 
     start_time = time.perf_counter()
